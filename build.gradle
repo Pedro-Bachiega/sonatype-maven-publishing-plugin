@@ -1,0 +1,29 @@
+plugins {
+    id 'maven-publish'
+    id 'java-gradle-plugin'
+}
+
+group 'io.github.pedro-bachiega'
+version '0.0.1-SNAPSHOT'
+
+allprojects {
+    afterEvaluate {
+        sourceSets.forEach { sourceSet ->
+            sourceSet.java.srcDirs += "src/${sourceSet.name}/groovy"
+        }
+    }
+}
+
+repositories {
+    google()
+    mavenCentral()
+}
+
+gradlePlugin {
+    plugins {
+        simplePlugin {
+            id = 'io.github.pedro-bachiega.sonatype-maven-publish'
+            implementationClass = 'com.pedrobneto.SonatypePublish'
+        }
+    }
+}
