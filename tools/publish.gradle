@@ -1,0 +1,39 @@
+gradlePlugin {
+    plugins {
+        sonatypeMavenPublish {
+            id = 'io.github.pedro-bachiega.sonatype-maven-publish'
+            implementationClass = 'com.pedrobneto.plugin.SonatypePublish'
+            displayName = "Sonatype Maven Publish"
+            description = "A simpler solution to publish your libraries on Sonatype maven"
+        }
+    }
+}
+
+pluginBundle {
+    website = 'https://github.com/Pedro-Bachiega/sonatype-maven-publishing-plugin'
+    vcsUrl = 'https://github.com/Pedro-Bachiega/sonatype-maven-publishing-plugin'
+    tags = ['sonatype', 'maven', 'publish', 'maven-publish']
+}
+
+allprojects {
+    afterEvaluate {
+        hidePublishingTasks()
+    }
+}
+
+def hideTasks(String... taskList) {
+    taskList.each {
+        tasks.findByName(it).group = null
+    }
+}
+
+def hidePublishingTasks() {
+    hideTasks(
+            "generateMetadataFileForPluginMavenPublication",
+            "generateMetadataFileForSonatypeMavenPublishPluginMarkerMavenPublication",
+            "generatePomFileForPluginMavenPublication",
+            "generatePomFileForSonatypeMavenPublishPluginMarkerMavenPublication",
+            "publishPluginMavenPublicationToMavenLocal",
+            "publishSonatypeMavenPublishPluginMarkerMavenPublicationToMavenLocal"
+    )
+}

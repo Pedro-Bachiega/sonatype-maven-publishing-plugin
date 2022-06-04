@@ -1,8 +1,3 @@
 .gradle
-/.gradle
-.gradle/*
-/.gradle/*
 .idea
-/.idea
-.idea/*
-/.idea/*
+build
