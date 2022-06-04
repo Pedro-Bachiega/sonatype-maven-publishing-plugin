@@ -33,6 +33,7 @@ def hidePublishingTasks() {
             "generateMetadataFileForSonatypeMavenPublishPluginMarkerMavenPublication",
             "generatePomFileForPluginMavenPublication",
             "generatePomFileForSonatypeMavenPublishPluginMarkerMavenPublication",
+            "publish",
             "publishPluginMavenPublicationToMavenLocal",
             "publishSonatypeMavenPublishPluginMarkerMavenPublicationToMavenLocal"
     )
