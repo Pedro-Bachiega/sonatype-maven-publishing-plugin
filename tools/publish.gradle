@@ -9,6 +9,15 @@ gradlePlugin {
     }
 }
 
+publishing {
+    repositories {
+        maven {
+            name = 'localPlugins'
+            url = '../local-plugin-repository'
+        }
+    }
+}
+
 pluginBundle {
     website = 'https://github.com/Pedro-Bachiega/sonatype-maven-publishing-plugin'
     vcsUrl = 'https://github.com/Pedro-Bachiega/sonatype-maven-publishing-plugin'
@@ -34,7 +43,10 @@ def hidePublishingTasks() {
             "generatePomFileForPluginMavenPublication",
             "generatePomFileForSonatypeMavenPublishPluginMarkerMavenPublication",
             "publish",
+            "publishAllPublicationsToLocalPluginsRepository",
+            "publishPluginMavenPublicationToLocalPluginsRepository",
             "publishPluginMavenPublicationToMavenLocal",
+            "publishSonatypeMavenPublishPluginMarkerMavenPublicationToLocalPluginsRepository",
             "publishSonatypeMavenPublishPluginMarkerMavenPublicationToMavenLocal"
     )
 }
