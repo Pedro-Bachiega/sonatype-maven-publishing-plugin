@@ -1,4 +1,4 @@
-package com.pedrobneto.plugin.extensions;
+package com.pedrobneto.plugin.extension;
 
 import org.gradle.api.provider.Property;
 

@@ -1,17 +1,20 @@
 package com.pedrobneto.plugin;
 
+import com.pedrobneto.plugin.model.Artifact;
+import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.publish.Publication;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.MavenPublication;
+import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
 import org.gradle.internal.impldep.com.esotericsoftware.minlog.Log;
 import org.gradle.plugins.signing.SigningExtension;
+import org.gradle.plugins.signing.SigningPlugin;
 
 public class SonatypePublish implements Plugin<Project> {
-
-    private static final String publicationName = "library";
 
     private static final String snapshotSuffix = "SNAPSHOT";
 
@@ -57,18 +60,20 @@ public class SonatypePublish implements Plugin<Project> {
         });
     }
 
-    private void configurePublications(
-            Project project,
+    private MavenPublication createPublication(
             SonatypePublishExtension sonatypePublishExtension,
-            PublishingExtension publishingExtension
+            PublishingExtension publishingExtension,
+            Artifact artifact
     ) {
-        MavenPublication pub = publishingExtension
+        return publishingExtension
                 .getPublications()
-                .create(publicationName, MavenPublication.class, publication -> {
-                    publication.setArtifactId(sonatypePublishExtension.getArtifactId().get());
+                .create(artifact.getTrimmedDisplayName(), MavenPublication.class, publication -> {
+                    artifact.getSources().forEach(publication::artifact);
+
+                    publication.setArtifactId(artifact.getArtifactId().get());
                     publication.pom(mavenPom -> {
-                        mavenPom.getName().set(sonatypePublishExtension.getLibName());
-                        mavenPom.getDescription().set(sonatypePublishExtension.getLibDescription());
+                        mavenPom.getName().set(artifact.getLibName());
+                        mavenPom.getDescription().set(artifact.getLibDescription());
                         mavenPom.getUrl().set(sonatypePublishExtension.getRepositoryUrl());
 
                         mavenPom.scm(scm -> {
@@ -89,22 +94,37 @@ public class SonatypePublish implements Plugin<Project> {
                         }));
                     });
                 });
-
-        sign(project, pub);
     }
 
     private void sign(Project project, Publication publication) {
         SigningExtension signing = project.getExtensions().findByType(SigningExtension.class);
         if (signing == null) {
-            Log.warn("Plugin \"signing\" not found.\nPossible solution: \"apply plugin: 'signing'\" before sonatype-maven-publish.");
+            Log.warn("Signing extension not found.");
             return;
         }
 
         signing.sign(publication);
     }
 
+    private void checkAndApplyRequiredPlugins(Project project) {
+        if (!project.getPlugins().hasPlugin(MavenPublishPlugin.class)) {
+            project.getPlugins().apply(MavenPublishPlugin.class);
+        }
+
+        if (!project.getPlugins().hasPlugin(SigningPlugin.class)) {
+            project.getPlugins().apply(SigningPlugin.class);
+        }
+    }
+
     @Override
     public void apply(Project project) {
+        checkAndApplyRequiredPlugins(project);
+
+        ObjectFactory objectFactory = project.getObjects();
+        NamedDomainObjectContainer<Artifact> artifactContainer = objectFactory
+                .domainObjectContainer(Artifact.class, name -> objectFactory.newInstance(Artifact.class, name));
+        project.getExtensions().add("publications", artifactContainer);
+
         SonatypePublishExtension sonatypePublishExtension = project
                 .getExtensions()
                 .create(SonatypePublishExtension.NAME, SonatypePublishExtension.class);
@@ -114,13 +134,28 @@ public class SonatypePublish implements Plugin<Project> {
                 .findByType(PublishingExtension.class);
 
         if (publishingExtension == null) {
-            Log.error("Plugin \"maven-publish\" not found.\nPossible solution: \"apply plugin: 'maven-publish'\" before sonatype-maven-publish.");
+            Log.error("Publishing extension not found.");
             return;
         }
 
         project.afterEvaluate(afterEvaluate -> {
             configureRepositories(afterEvaluate, sonatypePublishExtension, publishingExtension);
-            configurePublications(afterEvaluate, sonatypePublishExtension, publishingExtension);
+
+            artifactContainer.all(artifact -> {
+                Publication publication = createPublication(sonatypePublishExtension, publishingExtension, artifact);
+                sign(project, publication);
+
+                String name = artifact.getTrimmedDisplayName();
+                String capitalizedName = name.substring(0, 1).toUpperCase() + name.substring(1);
+                hideTasks(
+                        project,
+                        "generateMetadataFileFor" + capitalizedName + "Publication",
+                        "generatePomFileFor" + capitalizedName + "Publication",
+                        "publish" + capitalizedName + "PublicationToMavenLocal",
+                        "publish" + capitalizedName + "PublicationToSonatypeMavenRepository"
+                );
+            });
+
             hidePublishingTasks(afterEvaluate);
         });
     }
