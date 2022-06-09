@@ -2,21 +2,24 @@
 
 To implement this plugin there are just a few simple steps.
 
-### * Adding the dependency
+---------------------------------------------------------------------------------
+### Adding the dependency
 
 Simply add this dependency to the project's root **build.gradle**:
 ```
 implementation 'io.github.pedro-bachiega:sonatype-maven-publish:0.0.1'
 ```
 
-### * Applying the plugin
+---------------------------------------------------------------------------------
+### Applying the plugin
 
 To apply the plugin, just add this line to the **build.gradle** file on the module you will be publishing from:
 ```
 apply plugin: 'io.github.pedro-bachiega.sonatype-maven-publish'
 ```
 
-### * Using the plugin
+---------------------------------------------------------------------------------
+### Using the plugin
 
 To start configuring, first you need to enter your information in relation to the project.
 As a simple example, all the information will be displayed here, but you can put it on your gradle.properties file or wherever you think suits you better.
