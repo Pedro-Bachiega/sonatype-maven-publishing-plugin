@@ -13,7 +13,7 @@ publishing {
     repositories {
         maven {
             name = 'localPlugins'
-            url = '../local-plugin-repository'
+            url = '../local-plugins-repository'
         }
     }
 }
