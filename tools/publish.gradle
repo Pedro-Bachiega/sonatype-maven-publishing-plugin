@@ -28,8 +28,13 @@ allprojects {
     afterEvaluate {
         hideGenerationPublishingTasks()
         hidePublishingTasks()
-        hideLocalPublishingTasks()
+        hideLocalRepositoryPublishingTasks()
     }
+}
+
+task publishLocal(group: 'publishing') {
+    dependsOn publishAllPublicationsToLocalPluginsRepository
+    dependsOn publishToMavenLocal
 }
 
 def hideTasks(String... taskList) {
@@ -50,12 +55,13 @@ def hideGenerationPublishingTasks() {
 def hidePublishingTasks() {
     hideTasks(
             "publish",
+            "publishToMavenLocal",
             "publishPluginMavenPublicationToMavenLocal",
             "publishSonatypeMavenPublishPluginMarkerMavenPublicationToMavenLocal"
     )
 }
 
-def hideLocalPublishingTasks() {
+def hideLocalRepositoryPublishingTasks() {
     hideTasks(
             "publishAllPublicationsToLocalPluginsRepository",
             "publishPluginMavenPublicationToLocalPluginsRepository",
