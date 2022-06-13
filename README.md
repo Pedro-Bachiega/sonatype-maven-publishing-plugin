@@ -5,9 +5,16 @@ To implement this plugin there are just a few simple steps.
 ---------------------------------------------------------------------------------
 ### Adding the dependency
 
-Simply add this dependency to the project's root **build.gradle**:
+If needed, add the plugins repository to the project's root **build.gradle** repositories block:
 ```
-implementation 'io.github.pedro-bachiega:sonatype-maven-publish:0.0.1'
+maven {
+    url "https://plugins.gradle.org/m2/"
+}
+```
+
+Then simply add this dependency to the project's root **build.gradle** dependencies block:
+```
+classpath 'io.github.pedro-bachiega:SonatypeMavenPublishPlugin:0.0.1'
 ```
 
 ---------------------------------------------------------------------------------
