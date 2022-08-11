@@ -14,6 +14,8 @@ import org.gradle.internal.impldep.com.esotericsoftware.minlog.Log;
 import org.gradle.plugins.signing.SigningExtension;
 import org.gradle.plugins.signing.SigningPlugin;
 
+import java.util.List;
+
 public class SonatypePublish implements Plugin<Project> {
 
     private static final String snapshotSuffix = "SNAPSHOT";
@@ -61,6 +63,7 @@ public class SonatypePublish implements Plugin<Project> {
     }
 
     private MavenPublication createPublication(
+            Project project,
             SonatypePublishExtension sonatypePublishExtension,
             PublishingExtension publishingExtension,
             Artifact artifact
@@ -68,7 +71,14 @@ public class SonatypePublish implements Plugin<Project> {
         return publishingExtension
                 .getPublications()
                 .create(artifact.getTrimmedDisplayName(), MavenPublication.class, publication -> {
-                    artifact.getSources().forEach(publication::artifact);
+                    List<Object> sources = artifact.getSources();
+                    sources.forEach(publication::artifact);
+
+                    if (sources.isEmpty()) {
+                        publication.artifact(
+                                "" + project.getBuildDir() + "/outputs/aar/" + project.getName() + "-release.aar"
+                        );
+                    }
 
                     publication.setArtifactId(artifact.getArtifactId().get());
                     publication.pom(mavenPom -> {
@@ -142,13 +152,15 @@ public class SonatypePublish implements Plugin<Project> {
             configureRepositories(afterEvaluate, sonatypePublishExtension, publishingExtension);
 
             artifactContainer.all(artifact -> {
-                Publication publication = createPublication(sonatypePublishExtension, publishingExtension, artifact);
+                Publication publication = createPublication(
+                        afterEvaluate, sonatypePublishExtension, publishingExtension, artifact
+                );
                 sign(project, publication);
 
                 String name = artifact.getTrimmedDisplayName();
                 String capitalizedName = name.substring(0, 1).toUpperCase() + name.substring(1);
                 hideTasks(
-                        project,
+                        afterEvaluate,
                         "generateMetadataFileFor" + capitalizedName + "Publication",
                         "generatePomFileFor" + capitalizedName + "Publication",
                         "publish" + capitalizedName + "PublicationToMavenLocal",
