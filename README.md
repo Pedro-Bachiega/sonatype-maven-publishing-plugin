@@ -14,7 +14,7 @@ maven {
 
 Then simply add this dependency to the project's root **build.gradle** dependencies block:
 ```
-classpath 'io.github.pedro-bachiega:SonatypeMavenPublishPlugin:0.0.1'
+classpath 'io.github.pedro-bachiega:SonatypeMavenPublishPlugin:0.0.2'
 ```
 
 ---------------------------------------------------------------------------------
