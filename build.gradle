@@ -13,3 +13,9 @@ repositories {
     google()
     mavenCentral()
 }
+
+allprojects {
+    sourceSets.configureEach { SourceSet set ->
+        set.java.srcDirs = ['src/main/groovy']
+    }
+}
