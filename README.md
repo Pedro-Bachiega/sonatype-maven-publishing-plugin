@@ -47,40 +47,8 @@ sonatypePublishing {
 }
 ```
 
-You **must** have a **javadocJar** task, a **sourcesJar** task and the **artifacts** configured on the module
-you'll be publishing from for your lib to be accepted when published.
 For all rules and a complete tutorial on how to publish a lib (you can skip the gradle part if you're using this plugin),
 refer to https://central.sonatype.org/publish/publish-guide/#introduction.
-
-The following sample code provides the standard configuration for all of the above.
-```
-android {
-    task sourcesJar(type: Jar) {
-        from android.sourceSets.main.java.srcDirs
-        classifier = 'sources'
-    }
-
-    task javadoc(type: Javadoc) {
-        excludes = ['**/*.kt']
-        source = android.sourceSets.main.java.srcDirs
-        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-    }
-
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
-        from javadoc.destinationDir
-    }
-
-    tasks.withType(Javadoc) {
-        options.addStringOption('Xdoclint:none', '-quiet')
-        options.addStringOption('encoding', 'UTF-8')
-    }
-
-    artifacts {
-        archives javadocJar, sourcesJar
-    }
-}
-```
 
 After this initial setup, all you need to do is create a new publication for each artifact you want to publish.
 ```
