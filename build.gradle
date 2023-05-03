@@ -8,7 +8,7 @@ plugins {
 apply from: "$rootDir/tools/publish.gradle"
 
 group = 'io.github.pedro-bachiega'
-version = '0.0.3-SNAPSHOT'
+version = '0.0.3'
 
 repositories {
     google()
