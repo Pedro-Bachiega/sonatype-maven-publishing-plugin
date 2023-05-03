@@ -10,7 +10,7 @@
       </option>
       <option name="taskNames">
         <list>
-          <option value="publish" />
+          <option value="publishPlugins" />
         </list>
       </option>
       <option name="vmOptions" />
@@ -18,8 +18,6 @@
     <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
     <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
     <DebugAllEnabled>false</DebugAllEnabled>
-    <method v="2">
-      <option name="Gradle.BeforeRunTask" enabled="true" tasks="clean assemble" externalProjectPath="$PROJECT_DIR$" vmOptions="" scriptParameters="" />
-    </method>
+    <method v="2" />
   </configuration>
 </component>
