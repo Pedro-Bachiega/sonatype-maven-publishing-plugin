@@ -27,7 +27,10 @@ class SonatypePublish implements Plugin<Project> {
             "https://s01.oss.sonatype.org/content/repositories/snapshots/"
 
     private void hideTasks(Project project, String... taskList) {
-        taskList.each { project.tasks.named(it) { it.group = null } }
+        taskList.each {
+            final task = project.tasks.findByName(it)
+            if (task) task.group = null
+        }
     }
 
     private void hidePublishingTasks(Project project) {
@@ -96,7 +99,7 @@ class SonatypePublish implements Plugin<Project> {
             Boolean isSingleComponent,
             SonatypePublishExtension extension
     ) {
-        if (artifact.sources.empty) from component
+        if (artifact.sources.empty) publication.from component
         else artifact.sources.forEach(publication::artifact)
 
         var publicationId = artifact.artifactId.get()
@@ -120,6 +123,7 @@ class SonatypePublish implements Plugin<Project> {
                 artifacts.forEach { artifact ->
                     it.create("${artifact.name}${component.name.capitalize()}", MavenPublication) {
                         configurePublication(it, artifact, component, isSingleComponent, sonatypePublishExtension)
+                        sign(project, it)
                     }
                 }
             }
@@ -157,24 +161,24 @@ class SonatypePublish implements Plugin<Project> {
         final sonatypePublishExtension = project.extensions
                 .create(SonatypePublishExtension.NAME, SonatypePublishExtension)
 
-        project.afterEvaluate { afterEvaluate ->
+        project.afterEvaluate { Project afterEvaluate ->
             Task.configureDefault(afterEvaluate)
             configureRepositories(afterEvaluate, sonatypePublishExtension, publishingExtension)
-            artifactContainer.configureEach { artifact ->
-                var publication = createPublication(
-                        afterEvaluate, sonatypePublishExtension, publishingExtension, artifact
-                )
-                sign(afterEvaluate, publication)
 
-                final name = artifact.trimmedDisplayName.capitalize()
-                hideTasks(
-                        afterEvaluate,
-                        "generateMetadataFileFor${name}Publication",
-                        "generatePomFileFor${name}Publication",
-                        "publish${name}PublicationToMavenLocal",
-                        "publish${name}PublicationToSonatypeMavenRepository"
-                )
-            }
+            final artifacts = artifactContainer.collect()
+            createPublication(afterEvaluate, sonatypePublishExtension, publishingExtension, artifacts)
+
+            hideTasks(
+                    afterEvaluate,
+                    *artifacts*.trimmedDisplayName*.capitalize().collectMany { name ->
+                        [
+                                "generateMetadataFileFor${name}Publication",
+                                "generatePomFileFor${name}Publication",
+                                "publish${name}PublicationToMavenLocal",
+                                "publish${name}PublicationToSonatypeMavenRepository"
+                        ]
+                    }.toArray()
+            )
 
             hidePublishingTasks(afterEvaluate)
         }

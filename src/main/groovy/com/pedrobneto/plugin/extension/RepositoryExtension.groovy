@@ -1,8 +1,9 @@
-package com.pedrobneto.plugin.extension;
+package com.pedrobneto.plugin.extension
 
-import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Property
 
 interface RepositoryExtension {
     Property<String> getRepositoryUrl()
+
     Property<String> getRepositoryConnectionUrl()
 }

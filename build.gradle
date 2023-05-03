@@ -1,4 +1,5 @@
 plugins {
+    id 'groovy'
     id 'java-gradle-plugin'
     id 'maven-publish'
     id 'com.gradle.plugin-publish' version '1.0.0-rc-2'
@@ -14,8 +15,13 @@ repositories {
     mavenCentral()
 }
 
-allprojects {
-    sourceSets.configureEach { SourceSet set ->
-        set.java.srcDirs = ['src/main/groovy']
+sourceSets {
+    main {
+        groovy { srcDirs = ['src/main/groovy', 'src/main/java'] }
+        java { srcDirs = [] }
     }
+}
+
+dependencies {
+    implementation 'com.android.tools.build:gradle:8.0.1'
 }

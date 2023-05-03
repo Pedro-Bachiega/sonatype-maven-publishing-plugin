@@ -34,7 +34,7 @@ class Task {
             options.addStringOption('encoding', 'UTF-8')
         }
 
-        artifacts {
+        project.artifacts {
             archives project.tasks.javadocJar, project.tasks.sourcesJar
         }
     }
